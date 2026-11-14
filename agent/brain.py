@@ -19,7 +19,19 @@ from robot import Backend, StepError
 
 log = logging.getLogger("twingate.brain")
 
-MODEL = os.getenv("CLAUDE_MODEL", "claude-opus-5-5")
+# Bring your own model: set LLM_API_KEY (or ANTHROPIC_API_KEY), LLM_MODEL and optionally
+# LLM_BASE_URL for any Anthropic-compatible endpoint (proxy, gateway, self-hosted).
+MODEL = os.getenv("LLM_MODEL") or os.getenv("CLAUDE_MODEL") or "claude-opus-5-5"
+
+
+def make_client() -> "anthropic.Anthropic":
+    key = os.getenv("LLM_API_KEY") or os.getenv("ANTHROPIC_API_KEY")
+    if not key:
+        raise RuntimeError("No model key: set LLM_API_KEY (and optionally LLM_MODEL, LLM_BASE_URL) in .env")
+    kwargs = {"api_key": key}
+    if os.getenv("LLM_BASE_URL"):
+        kwargs["base_url"] = os.environ["LLM_BASE_URL"]
+    return anthropic.Anthropic(**kwargs)
 MAX_TURNS = 10
 MAX_STEPS = 24
 
@@ -27,7 +39,8 @@ Emit = Callable[[str, str, Any], None]
 
 # Spend guard. Opus 5.5 list price: $4 / $20 per million tokens (in / out).
 MAX_SPEND_USD = float(os.getenv("MAX_SPEND_USD", "100"))
-PRICE_IN, PRICE_OUT = 4 / 1e6, 20 / 1e6
+PRICE_IN = float(os.getenv("LLM_PRICE_IN_PER_MTOK", "4")) / 1e6    # USD per input token (default: Opus 5.5)
+PRICE_OUT = float(os.getenv("LLM_PRICE_OUT_PER_MTOK", "20")) / 1e6
 _SPEND_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".spend.json")
 
 
@@ -185,7 +198,7 @@ class Brain:
                  skill_matcher: Optional[Callable[[str], Optional[tuple[str, float]]]] = None,
                  history: Optional[Callable[[str], str]] = None) -> None:
         self.backend = backend
-        self.client = anthropic.Anthropic()
+        self.client = make_client()
         self.load_skills = skills_loader
         self.save_skill = skill_saver
         self.save_frame = frame_saver
