@@ -49,7 +49,7 @@ The pharmacy cell, built from Cyberwave catalog assets, contains:
 ## Run the demo
 
 ```bash
-cp .env.example .env              # fill CYBERWAVE_API_KEY, SUPABASE_*, ANTHROPIC_API_KEY, SIM_TWIN_ID, RUNNER_TWIN_ID
+cp .env.example .env              # fill CYBERWAVE_API_KEY, SUPABASE_*, LLM_API_KEY (+ optional LLM_MODEL, LLM_BASE_URL), SIM_TWIN_ID, RUNNER_TWIN_ID
 python3 -m venv agent/.venv && agent/.venv/bin/pip install -r agent/requirements.txt
 # Supabase SQL editor: run supabase/schema.sql, v2.sql, v3.sql, sentry.sql
 ./run.sh                          # serves web/ on :8080 and starts the agent
@@ -79,3 +79,7 @@ phones (index.html) ──insert──▶ Supabase Postgres ◀──Realtime─
 The full write-up is in [docs/TWINGATE_EXPLAINED.md](docs/TWINGATE_EXPLAINED.md).
 
 Runs in simulation today. Pointing `LIVE_TWIN_ID` at the real robot is the only change needed.
+
+## Bring your own model
+
+No API key ships with this repo. Set `LLM_API_KEY` in `.env`. Optionally set `LLM_MODEL` (default `claude-opus-5-5`) and `LLM_BASE_URL` for any Anthropic-compatible endpoint. `MAX_SPEND_USD` caps spend.
