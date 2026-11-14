@@ -22,7 +22,7 @@ import threading  # noqa: E402
 
 import anthropic  # noqa: E402
 
-from brain import Brain, Rehearsal, inspect_frame  # noqa: E402
+from brain import Brain, Rehearsal, inspect_frame, make_client  # noqa: E402
 from db import DB, EventSink  # noqa: E402
 from robot import MAX_DEG_PER_S, Backend, StepError, make_backend, phone_eyes_jpeg  # noqa: E402
 
@@ -46,7 +46,8 @@ class Worker:
     def __init__(self) -> None:
         self.url = need("SUPABASE_URL")
         self.key = need("SUPABASE_SERVICE_ROLE_KEY")
-        need("ANTHROPIC_API_KEY")
+        if not (os.getenv("LLM_API_KEY") or os.getenv("ANTHROPIC_API_KEY")):
+            sys.exit("Missing LLM_API_KEY in .env (bring your own key; optional LLM_MODEL, LLM_BASE_URL)")
         self.db = DB(self.url, self.key)
         self.events = EventSink(self.db)
         self.backend: Backend = make_backend()
@@ -253,7 +254,7 @@ class Worker:
     def watch_loop(self) -> None:
         """Monitoring / inspection: judge robot-eyes frames against the operator's rule."""
         db = DB(self.url, self.key)
-        client = anthropic.Anthropic()
+        client = make_client()
         last_t, last_nofeed, previous = 0.0, 0.0, ""
         last_alert: tuple[str, float] = ("", 0.0)
         while True:
