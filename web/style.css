@@ -1,0 +1,42 @@
+:root {
+  --bg: #07090d;
+  --panel: #0e1218;
+  --panel-2: #131923;
+  --line: #1f2733;
+  --text: #e8edf3;
+  --muted: #8592a3;
+  --sim: #39d0ff;      /* digital twin */
+  --live: #ffb020;     /* real robot */
+  --ok: #3ddc84;
+  --bad: #ff5468;
+  --accent: #3ecf8e;   /* supabase green */
+  --radius: 14px;
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --sans: "Space Grotesk", ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--sans); }
+body { min-height: 100vh; }
+a { color: var(--sim); }
+button { font: inherit; cursor: pointer; border: 0; }
+.mono { font-family: var(--mono); }
+.muted { color: var(--muted); }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: -0.02em; }
+.brand .logo { width: 28px; height: 28px; border-radius: 8px; position: relative;
+  background: linear-gradient(135deg, var(--sim), transparent 60%), linear-gradient(315deg, var(--live), transparent 60%), #0b0f14;
+  box-shadow: 0 0 0 1px var(--line); }
+.brand .logo::after { content: ""; position: absolute; inset: 8px; border-radius: 3px; border: 2px solid var(--text); opacity: .85; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); }
+.label { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.pill { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-size: 12px;
+  font-weight: 600; background: var(--panel-2); border: 1px solid var(--line); white-space: nowrap; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+.dot.on { background: var(--ok); box-shadow: 0 0 10px var(--ok); }
+.st-queued { color: var(--muted); }
+.st-planning, .st-rehearsing { color: var(--sim); border-color: color-mix(in srgb, var(--sim) 40%, transparent); }
+.st-awaiting_approval { color: var(--live); border-color: color-mix(in srgb, var(--live) 50%, transparent); }
+.st-approved, .st-executing { color: #111; background: var(--live); }
+.st-done { color: var(--ok); border-color: color-mix(in srgb, var(--ok) 40%, transparent); }
+.st-blocked, .st-rejected, .st-failed { color: var(--bad); border-color: color-mix(in srgb, var(--bad) 40%, transparent); }
+@keyframes pulse { 0%, 100% { opacity: 1 } 50% { opacity: .45 } }
+.pulse { animation: pulse 1.2s ease-in-out infinite; }

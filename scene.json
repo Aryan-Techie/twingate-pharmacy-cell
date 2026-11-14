@@ -1,0 +1,131 @@
+{
+ "environment": "da865d0f-7e80-4628-830e-e6924ce4f9cf",
+ "twins": {
+  "Pick Table": {
+   "uuid": "8482617f-99f1-419e-a22a-16e87c13448a",
+   "asset": "cyberwave/generictable",
+   "position": [
+    0,
+    0,
+    0
+   ]
+  },
+  "SO-101 Picker": {
+   "uuid": "b0d1b58a-c926-4e05-b8b3-d804bc2dadc9",
+   "asset": "the-robot-studio/so101",
+   "position": [
+    0,
+    -0.22,
+    1.283
+   ]
+  },
+  "Bin A - Paracetamol": {
+   "uuid": "fc66ac19-cd68-4e53-975a-a809ab33161a",
+   "asset": "cyberwave/generic-box",
+   "position": [
+    -0.17,
+    0.06,
+    1.283
+   ]
+  },
+  "Bin B - Insulin": {
+   "uuid": "5cb021df-2a24-4359-b71c-2ef41ff41437",
+   "asset": "cyberwave/generic-box",
+   "position": [
+    0.0,
+    0.1,
+    1.283
+   ]
+  },
+  "Bin C - Amoxicillin": {
+   "uuid": "6bbf85a8-e813-4518-8777-18732e9a0fdc",
+   "asset": "cyberwave/generic-box",
+   "position": [
+    0.17,
+    0.06,
+    1.283
+   ]
+  },
+  "Dispatch Tray": {
+   "uuid": "9961d88b-8a5d-45ed-b8ee-98ed7506d2e8",
+   "asset": "cyberwave/generic-box",
+   "position": [
+    0.24,
+    -0.24,
+    1.283
+   ]
+  },
+  "Pack - Paracetamol": {
+   "uuid": "4fe67de8-28da-4469-ac59-d576e2e8db17",
+   "asset": "cyberwave/generic_cube",
+   "position": [
+    -0.17,
+    0.06,
+    1.293
+   ]
+  },
+  "Pack - Insulin": {
+   "uuid": "2f4c2d4b-ca94-4eaf-a129-c66ca07cd47f",
+   "asset": "cyberwave/generic_cube",
+   "position": [
+    0.0,
+    0.1,
+    1.293
+   ]
+  },
+  "Pack - Amoxicillin": {
+   "uuid": "511bd64b-a86e-4daf-9f6a-ea78f6bb50f6",
+   "asset": "cyberwave/generic_cube",
+   "position": [
+    0.17,
+    0.06,
+    1.293
+   ]
+  },
+  "Overhead Verifier (RealSense D455)": {
+   "uuid": "657801c8-7cbf-4864-ab69-ff479febaee1",
+   "asset": "intel/realsensed455",
+   "position": [
+    0.0,
+    -0.02,
+    1.9829999999999999
+   ]
+  },
+  "Front Camera (Logitech C275)": {
+   "uuid": "3bc4a915-99f7-4624-a806-a4596bff0edd",
+   "asset": "logitech/c275",
+   "position": [
+    0.65,
+    -0.05,
+    1.533
+   ]
+  },
+  "Ward Runner (TurtleBot3)": {
+   "uuid": "ef99bb6c-6ca6-45b0-b383-ce6915186b3c",
+   "asset": "robotis/turtlebot3-waffle",
+   "position": [
+    -0.95,
+    0.55,
+    0
+   ]
+  },
+  "Ward 3 Handoff Table": {
+   "uuid": "a84aa486-c05f-47f5-b9c3-0852453e5066",
+   "asset": "cyberwave/generictable",
+   "position": [
+    -3.0,
+    0.55,
+    0
+   ]
+  },
+  "Ward 3 Inbox": {
+   "uuid": "93478655-9d6a-4403-9538-708fec08b3b0",
+   "asset": "cyberwave/generic-box",
+   "position": [
+    -3.0,
+    0.55,
+    0.8980999999999999
+   ]
+  }
+ }
+}

@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>TwinGate Eyes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+<style>
+  main { max-width: 560px; margin: 0 auto; padding: 16px; display: grid; gap: 14px; }
+  header { display: flex; justify-content: space-between; align-items: center; }
+  video { width: 100%; border-radius: 14px; background: #000; aspect-ratio: 4 / 3; object-fit: cover; border: 1px solid var(--line); }
+  .go { width: 100%; padding: 16px; border-radius: 12px; font-weight: 700; font-size: 17px; background: var(--sim); color: #041016; }
+  p { color: var(--muted); font-size: 14px; margin: 0; line-height: 1.45; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="brand"><span class="logo"></span>TwinGate Eyes</div>
+    <span class="pill"><span class="dot" id="dot"></span><span id="st">off</span></span>
+  </header>
+  <p>Point this phone at the robot's table. Every 2 seconds it sends one frame to Supabase Storage. When the agent calls <span class="mono">look()</span>, it sees this view.</p>
+  <video id="v" playsinline muted autoplay></video>
+  <button class="go" id="go">Start robot eyes</button>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<script>
+const sb = supabase.createClient(TWINGATE.SUPABASE_URL, TWINGATE.SUPABASE_ANON_KEY);
+const v = document.getElementById("v"), st = document.getElementById("st"), dot = document.getElementById("dot");
+const canvas = document.createElement("canvas");
+let timer = null, sent = 0, lock = null;
+async function snap() {
+  if (!v.videoWidth) return;
+  const w = 640, h = Math.round(640 * v.videoHeight / v.videoWidth);
+  canvas.width = w; canvas.height = h;
+  canvas.getContext("2d").drawImage(v, 0, 0, w, h);
+  const blob = await new Promise((r) => canvas.toBlob(r, "image/jpeg", 0.72));
+  const { error } = await sb.storage.from("frames").upload("eyes/latest.jpg", blob, { upsert: true, contentType: "image/jpeg", cacheControl: "0" });
+  if (error) { st.textContent = "error: " + error.message; dot.classList.remove("on"); return; }
+  sent++; st.textContent = `live · ${sent} frames`; dot.classList.add("on");
+}
+document.getElementById("go").onclick = async () => {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment", width: { ideal: 1280 } }, audio: false });
+    v.srcObject = stream; await v.play();
+    try { lock = await navigator.wakeLock?.request("screen"); } catch {}
+    clearInterval(timer); timer = setInterval(snap, 2000); snap();
+    document.getElementById("go").textContent = "Streaming… keep this screen on";
+  } catch (e) { st.textContent = "camera blocked: " + e.message; }
+};
+</script>
+</body>
+</html>

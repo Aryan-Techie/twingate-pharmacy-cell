@@ -1,0 +1,5 @@
+cyberwave==0.7.5
+anthropic
+httpx
+python-dotenv
+opencv-python-headless

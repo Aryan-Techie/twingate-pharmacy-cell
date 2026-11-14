@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>TwinGate</title>
+<meta name="theme-color" content="#07090d" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+<style>
+  main { max-width: 560px; margin: 0 auto; padding: 18px 16px 48px; }
+  header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+  h1 { font-size: 30px; line-height: 1.08; letter-spacing: -0.03em; margin: 6px 0 8px; }
+  h1 .sim { color: var(--sim); } h1 .live { color: var(--live); }
+  .lead { color: var(--muted); margin: 0 0 18px; font-size: 15px; line-height: 1.45; }
+  .card { padding: 14px; }
+  input, textarea { width: 100%; background: var(--panel-2); border: 1px solid var(--line); color: var(--text);
+    border-radius: 10px; padding: 12px; font: inherit; font-size: 16px; outline: none; }
+  input:focus, textarea:focus { border-color: var(--sim); }
+  textarea { resize: none; min-height: 92px; margin-top: 10px; }
+  .row { display: flex; gap: 10px; margin-top: 10px; }
+  .mic { width: 54px; flex: none; border-radius: 12px; background: var(--panel-2); border: 1px solid var(--line); color: var(--text); font-size: 22px; }
+  .mic.rec { background: var(--bad); border-color: var(--bad); }
+  .mic.lang { font-size: 14px; font-weight: 700; }
+  .send { flex: 1; border-radius: 12px; padding: 15px; font-weight: 700; font-size: 17px; color: #041016;
+    background: linear-gradient(90deg, var(--sim), #7ee6ff); }
+  .send:disabled { opacity: .5; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 4px; }
+  .chip { background: transparent; border: 1px solid var(--line); color: var(--text); border-radius: 999px; padding: 7px 12px; font-size: 13px; }
+  .mine { margin-top: 22px; display: grid; gap: 12px; }
+  .m { padding: 14px; }
+  .m .p { font-weight: 600; margin: 6px 0 10px; }
+  .steps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+  .steps div { height: 5px; border-radius: 4px; background: var(--line); }
+  .steps div.on { background: var(--sim); }
+  .steps div.live.on { background: var(--live); }
+  .steps div.bad { background: var(--bad); }
+  .legend { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; font-size: 10px; color: var(--muted); margin-top: 5px; }
+  .sum { margin-top: 10px; font-size: 14px; color: var(--text); }
+  .err { color: var(--bad); font-size: 13px; margin-top: 8px; }
+  .how { margin-top: 26px; font-size: 13px; color: var(--muted); line-height: 1.5; }
+  .how b { color: var(--text); }
+  .teach { margin-top: 16px; padding: 14px; }
+  .th { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .tt { font-weight: 700; font-size: 17px; margin-top: 2px; }
+  .tinfo { color: var(--muted); font-size: 13px; margin-top: 8px; line-height: 1.4; }
+  .tbtn { background: var(--panel-2); color: var(--text); border: 1px solid var(--line) !important; border-radius: 10px; padding: 9px 12px; font-weight: 600; font-size: 14px; white-space: nowrap; }
+  .tbtn.on { background: var(--sim); color: #041016; }
+  .sl { display: grid; grid-template-columns: 92px 1fr 44px; align-items: center; gap: 8px; margin-top: 10px; font-size: 13px; }
+  .sl input { width: 100%; accent-color: var(--sim); padding: 0; }
+  .sl .v { font-family: var(--mono); font-size: 12px; text-align: right; color: var(--sim); }
+  .krow { display: flex; gap: 8px; margin-top: 12px; align-items: center; }
+  .krow input { flex: 1; font-family: var(--mono); font-size: 15px; }
+  .kc { color: var(--muted); font-size: 13px; margin-left: auto; }
+  .tsave { background: var(--live); color: #120c00; font-weight: 700; border-radius: 10px; padding: 12px 14px; }
+  .mypts { margin-top: 12px; font-size: 13px; color: var(--muted); text-align: center; }
+  .mypts b { color: var(--accent); font-family: var(--mono); }
+  .estopbar { display: none; margin-top: 16px; background: #c9142c; color: #fff; font-weight: 700; padding: 12px 14px; border-radius: 12px; text-align: center; }
+  .vote { margin-top: 18px; display: grid; gap: 12px; }
+  .vcard { padding: 14px; border: 1px solid color-mix(in srgb, var(--live) 55%, transparent); background: color-mix(in srgb, var(--live) 7%, var(--panel)); }
+  .vcard .q { font-weight: 700; margin: 6px 0 4px; font-size: 17px; }
+  .vcard .s { color: var(--muted); font-size: 13px; margin-bottom: 12px; }
+  .vbtns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .vbtns button { padding: 14px; border-radius: 12px; font-weight: 700; font-size: 16px; }
+  .vyes { background: var(--ok); color: #04140a; } .vno { background: var(--panel-2); color: var(--text); border: 1px solid var(--line) !important; }
+  .vbtns button:disabled { opacity: .45; }
+  .vtally { margin-top: 10px; font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  .toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: var(--panel-2); border: 1px solid var(--line);
+    padding: 10px 16px; border-radius: 10px; font-size: 14px; opacity: 0; transition: opacity .2s; pointer-events: none; }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="brand"><span class="logo"></span>TwinGate</div>
+    <span class="pill"><span class="dot" id="conn"></span><span id="qinfo">connecting</span></span>
+  </header>
+
+  <h1>Command the robot.<br /><span class="sim">Twin rehearses</span> first, <span class="live">real robot</span> second.</h1>
+  <p class="lead">Type or say what the robot on the table should do. An AI agent plans it, rehearses it on the Cyberwave digital twin, and a safety gate decides if it may touch the real world.</p>
+
+  <section class="panel card">
+    <input id="name" maxlength="24" placeholder="Your name" autocomplete="nickname" />
+    <textarea id="prompt" maxlength="300" placeholder="e.g. wave hello to the judges, then bow"></textarea>
+    <div class="row">
+      <button class="mic" id="mic" aria-label="Speak">🎙</button>
+      <button class="mic lang" id="lang" aria-label="Voice language">EN</button>
+      <button class="send" id="send">Send to robot</button>
+    </div>
+    <div class="chips" id="chips"></div>
+  </section>
+
+  <section class="panel card teach" id="teach">
+    <div class="th"><div><span class="label">Teach mode</span><div class="tt">Move the robot with your fingers</div></div><button class="tbtn" id="tTake">Take control</button></div>
+    <div class="tinfo" id="tInfo">Drag the sliders and the digital twin on the big screen moves live. Add keyframes, name your move, and the robot learns it. It still goes through the safety gate before the real robot.</div>
+    <div id="tBody" style="display:none">
+      <div id="sliders"></div>
+      <div class="krow"><button class="tbtn" id="tKey">＋ Keyframe</button><button class="tbtn" id="tClear">Clear</button><span class="kc" id="tCount">0 keyframes</span></div>
+      <div class="krow"><input id="tName" maxlength="24" placeholder="name_your_move" /><button class="tsave" id="tSave">Teach robot</button></div>
+    </div>
+  </section>
+  <div class="mypts" id="mypts"></div>
+  <div class="estopbar" id="estopbar">E-STOP engaged · robot halted by operator</div>
+  <section class="vote" id="vote"></section>
+  <section class="mine" id="mine"></section>
+
+  <p class="how"><b>How it works.</b> Your request lands in Supabase (Postgres + Realtime). A Claude agent turns it into motion and runs every move on the robot's digital twin. Unsafe moves get caught in simulation. Only a plan that passes the gate is promoted to the real robot.</p>
+</main>
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<script>
+const sb = supabase.createClient(TWINGATE.SUPABASE_URL, TWINGATE.SUPABASE_ANON_KEY);
+const $ = (id) => document.getElementById(id);
+const store = {
+  get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+};
+const IDEAS = ["हाथ हिलाकर नमस्ते करो", "Wave hello to the judges", "Do a little victory dance", "Nod yes three times", "Bow politely",
+  "Look around and tell me what you see", "Point at the door, then come home", "Act surprised", "Pick a direction and stretch"];
+$("chips").innerHTML = IDEAS.map((t) => `<button class="chip">${t}</button>`).join("");
+$("chips").onclick = (e) => { if (e.target.classList.contains("chip")) { $("prompt").value = e.target.textContent; $("prompt").focus(); } };
+$("name").value = store.get("tg_name", "");
+
+let mine = store.get("tg_missions", []);
+let voter = store.get("tg_voter", null);
+if (!voter) { voter = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2) + Date.now()); store.set("tg_voter", voter); }
+const pending = new Map();   // awaiting_approval missions from everyone
+const tallies = new Map();   // mission_id -> {yes, no, mine}
+let quorum = 3;
+const missions = new Map();
+const STAGES = [["queued"], ["planning", "rehearsing"], ["awaiting_approval"], ["approved", "executing"], ["done"]];
+const LABELS = ["Queued", "Twin rehearsal", "Safety gate", "Real robot", "Done"];
+const BAD = ["blocked", "rejected", "failed"];
+
+function toast(msg) { const t = $("toast"); t.textContent = msg; t.classList.add("show"); setTimeout(() => t.classList.remove("show"), 2200); }
+function esc(s) { return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+function stageIndex(st) {
+  if (BAD.includes(st)) return -1;
+  return STAGES.findIndex((g) => g.includes(st));
+}
+function render() {
+  const rows = mine.map((id) => missions.get(id)).filter(Boolean).sort((a, b) => b.id - a.id);
+  $("mine").innerHTML = rows.map((m) => {
+    const idx = stageIndex(m.status);
+    const bad = idx === -1;
+    const reached = bad ? (m.safety ? 2 : 1) : idx;
+    const bars = LABELS.map((_, i) => {
+      const cls = [i >= 3 ? "live" : "", i <= reached ? "on" : "", bad && i === reached ? "bad" : ""].join(" ");
+      return `<div class="${cls}"></div>`;
+    }).join("");
+    const pending = ["queued", "planning", "rehearsing", "approved", "executing"].includes(m.status);
+    return `<article class="panel m">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span class="label">Mission #${m.id}</span>
+        <span class="pill st-${m.status} ${pending ? "pulse" : ""}">${esc(m.status.replace("_", " "))}</span>
+      </div>
+      <div class="p">“${esc(m.prompt)}”</div>
+      <div class="steps">${bars}</div>
+      <div class="legend">${LABELS.map((l) => `<span>${l}</span>`).join("")}</div>
+      ${m.summary ? `<div class="sum">🤖 ${esc(m.summary)}</div>` : ""}
+      ${m.safety && !m.safety.passed && m.status === "blocked" ? `<div class="err">Safety gate blocked it: ${esc((m.safety.violations || [])[0] || "failed checks")}</div>` : ""}
+      ${m.error ? `<div class="err">${esc(m.error)}</div>` : ""}
+    </article>`;
+  }).join("");
+}
+function renderVote() {
+  const rows = [...pending.values()].sort((a, b) => a.id - b.id).slice(0, 3);
+  $("vote").innerHTML = rows.map((m) => {
+    const t = tallies.get(m.id) || { yes: 0, no: 0, mine: null };
+    const voted = t.mine !== null;
+    return `<article class="panel vcard">
+      <span class="label">Crowd safety vote · mission #${m.id} · from ${esc(m.author)}</span>
+      <div class="q">Should the real robot do “${esc(m.prompt)}”?</div>
+      <div class="s">The twin rehearsed it: ${m.plan?.length || 0} moves, safety ${m.safety?.score ?? "?"}/100. ${esc(m.summary || "")}</div>
+      <div class="vbtns"><button class="vyes" data-id="${m.id}" data-v="1" ${voted ? "disabled" : ""}>👍 Do it</button><button class="vno" data-id="${m.id}" data-v="0" ${voted ? "disabled" : ""}>👎 No</button></div>
+      <div class="vtally">${t.yes} yes · ${t.no} no · ${quorum} needed${voted ? " · you voted" : ""}</div>
+    </article>`;
+  }).join("");
+}
+$("vote").onclick = async (e) => {
+  const b = e.target.closest("button[data-id]"); if (!b) return;
+  const id = +b.dataset.id, approve = b.dataset.v === "1";
+  const t = tallies.get(id) || { yes: 0, no: 0, mine: null };
+  t.mine = approve; tallies.set(id, t); renderVote();
+  const { error } = await sb.from("votes").insert({ mission_id: id, voter, approve });
+  if (error && !/duplicate/.test(error.message)) toast("Vote failed: " + error.message);
+  else toast(approve ? "Voted yes" : "Voted no");
+};
+async function loadVotes(ids) {
+  if (!ids.length) return;
+  const { data } = await sb.from("votes").select("*").in("mission_id", ids);
+  ids.forEach((id) => tallies.set(id, { yes: 0, no: 0, mine: null }));
+  (data || []).forEach(countVote);
+}
+function countVote(v) {
+  const t = tallies.get(v.mission_id) || { yes: 0, no: 0, mine: null };
+  if (v.approve) t.yes++; else t.no++;
+  if (v.voter === voter) t.mine = v.approve;
+  tallies.set(v.mission_id, t);
+}
+async function refreshQueue() {
+  const { count } = await sb.from("missions").select("id", { count: "exact", head: true })
+    .in("status", ["queued", "planning", "rehearsing", "awaiting_approval", "approved", "executing"]);
+  $("qinfo").textContent = count ? `${count} in queue` : "robot ready";
+}
+async function load() {
+  if (mine.length) {
+    const { data } = await sb.from("missions").select("*").in("id", mine);
+    (data || []).forEach((m) => missions.set(m.id, m));
+  }
+  render(); refreshQueue();
+  const { data: pend } = await sb.from("missions").select("*").eq("status", "awaiting_approval");
+  (pend || []).forEach((m) => pending.set(m.id, m));
+  await loadVotes([...pending.keys()]);
+  const { data: ctl } = await sb.from("control").select("*").eq("id", 1).single();
+  if (ctl) { quorum = ctl.crowd_quorum; $("estopbar").style.display = ctl.estop ? "block" : "none"; }
+  renderVote();
+}
+sb.channel("phone").on("postgres_changes", { event: "*", schema: "public", table: "missions" }, (p) => {
+  const m = p.new;
+  if (m && mine.includes(m.id)) { missions.set(m.id, m); render(); if (m.status === "done") toast("Your mission ran on the real robot!"); }
+  if (m) { if (m.status === "awaiting_approval") { pending.set(m.id, m); if (!tallies.has(m.id)) tallies.set(m.id, { yes: 0, no: 0, mine: null }); } else pending.delete(m.id); renderVote(); }
+  refreshQueue();
+})
+.on("postgres_changes", { event: "INSERT", schema: "public", table: "votes" }, (p) => {
+  const v = p.new; const t = tallies.get(v.mission_id);
+  if (t && v.voter === voter && t.mine !== null) { /* own vote already counted optimistically below */ }
+  countVote(v); renderVote();
+})
+.on("postgres_changes", { event: "*", schema: "public", table: "control" }, (p) => {
+  quorum = p.new.crowd_quorum; $("estopbar").style.display = p.new.estop ? "block" : "none"; renderVote();
+})
+.subscribe((s) => { $("conn").classList.toggle("on", s === "SUBSCRIBED"); });
+
+$("send").onclick = async () => {
+  const prompt = $("prompt").value.trim();
+  const author = $("name").value.trim() || "anon";
+  if (!prompt) return toast("Tell the robot something first");
+  store.set("tg_name", author);
+  $("send").disabled = true;
+  const { data, error } = await sb.from("missions").insert({ prompt, author, client_id: voter }).select().single();
+  $("send").disabled = false;
+  if (error) return toast("Could not send: " + error.message);
+  mine = [data.id, ...mine].slice(0, 10); store.set("tg_missions", mine);
+  missions.set(data.id, data); $("prompt").value = ""; render(); toast("Sent! Watch the big screen.");
+};
+
+// Voice input (Chrome / Safari), English or Hindi
+let voiceLang = store.get("tg_lang", "en-IN");
+const setLang = () => { $("lang").textContent = voiceLang === "hi-IN" ? "हिं" : "EN"; };
+setLang();
+$("lang").onclick = () => { voiceLang = voiceLang === "hi-IN" ? "en-IN" : "hi-IN"; store.set("tg_lang", voiceLang); setLang(); toast(voiceLang === "hi-IN" ? "Speak in Hindi" : "Speak in English"); };
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+if (!SR) $("mic").style.display = "none";
+else {
+  let rec = null;
+  $("mic").onclick = () => {
+    if (rec) { rec.stop(); return; }
+    rec = new SR(); rec.lang = voiceLang; rec.interimResults = true;
+    $("mic").classList.add("rec");
+    rec.onresult = (e) => { $("prompt").value = Array.from(e.results).map((r) => r[0].transcript).join(" "); };
+    rec.onend = () => { $("mic").classList.remove("rec"); rec = null; };
+    rec.start();
+  };
+}
+// ---------- robot replies out loud on your phone ----------
+function speak(t) {
+  try {
+    if (!t || !window.speechSynthesis) return;
+    speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t);
+    if (/[\u0900-\u097F]/.test(t)) u.lang = "hi-IN";
+    speechSynthesis.speak(u);
+  } catch {}
+}
+
+// ---------- teach mode ----------
+const ALIASES = ["shoulder_pan", "shoulder_lift", "elbow_flex", "wrist_flex", "wrist_roll", "gripper"];
+let joints = [], pose = {}, keyframes = [], owning = false, teachRow = null, sendTimer = null, lastKf = null;
+fetch("so101.json").then((r) => r.json()).then((d) => {
+  joints = d.joints.map((j) => ({ name: j.name, lo: Math.round(j.limits.lower * 57.2958), hi: Math.round(j.limits.upper * 57.2958) }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+  joints.forEach((j) => { pose[j.name] = Math.max(j.lo, Math.min(j.hi, 0)); });
+  $("sliders").innerHTML = joints.map((j, i) => `<label class="sl"><span>${ALIASES[i] || j.name}</span>
+    <input type="range" min="${j.lo}" max="${j.hi}" step="1" value="${pose[j.name]}" data-j="${j.name}"><span class="v" id="v${j.name}">${pose[j.name]}°</span></label>`).join("");
+});
+$("sliders").addEventListener("input", (e) => {
+  const j = e.target.dataset.j; if (!j) return;
+  pose[j] = +e.target.value; $("v" + j).textContent = pose[j] + "°";
+  if (!sendTimer) sendTimer = setTimeout(pushPose, 110);
+});
+async function pushPose() {
+  sendTimer = null; if (!owning) return;
+  await sb.from("teach").update({ joints_deg: pose, owner: voter, owner_name: $("name").value.trim() || "anon", updated_at: new Date().toISOString() }).eq("id", 1);
+}
+function teachBusy() { return teachRow && teachRow.owner && teachRow.owner !== voter && Date.now() - new Date(teachRow.updated_at).getTime() < 20000; }
+$("tTake").onclick = async () => {
+  if (owning) { owning = false; await sb.from("teach").update({ owner: null, owner_name: null, updated_at: new Date().toISOString() }).eq("id", 1); renderTeach(); return; }
+  if (teachBusy()) return toast(`${teachRow.owner_name || "Someone"} is teaching right now. Try in a few seconds.`);
+  owning = true; renderTeach(); pushPose();
+};
+$("tKey").onclick = () => {
+  const prev = lastKf || Object.fromEntries(joints.map((j) => [j.name, 0]));
+  const delta = Math.max(...joints.map((j) => Math.abs(pose[j.name] - (prev[j.name] ?? 0))));
+  keyframes.push({ targets_deg: { ...pose }, duration: Math.max(0.6, Math.round((delta / 70) * 10) / 10) });
+  lastKf = { ...pose }; $("tCount").textContent = `${keyframes.length} keyframe${keyframes.length === 1 ? "" : "s"}`;
+  if (navigator.vibrate) navigator.vibrate(30);
+};
+$("tClear").onclick = () => { keyframes = []; lastKf = null; $("tCount").textContent = "0 keyframes"; };
+$("tSave").onclick = async () => {
+  const name = $("tName").value.trim().toLowerCase().replace(/[^a-z0-9_]+/g, "_").replace(/^_+|_+$/g, "").slice(0, 24);
+  if (!keyframes.length) return toast("Add at least one keyframe");
+  if (name.length < 2) return toast("Give your move a name");
+  const author = $("name").value.trim() || "anon"; store.set("tg_name", author);
+  const { error } = await sb.from("teach_submissions").insert({ author, name, keyframes });
+  if (error) return toast("Could not teach: " + error.message);
+  toast(`Teaching "${name}"… watch the big screen`); speak(`Teaching ${name.replace(/_/g, " ")}`);
+  keyframes = []; lastKf = null; $("tCount").textContent = "0 keyframes"; $("tName").value = "";
+  owning = false; await sb.from("teach").update({ owner: null, owner_name: null, updated_at: new Date().toISOString() }).eq("id", 1); renderTeach();
+};
+function renderTeach() {
+  $("tBody").style.display = owning ? "block" : "none";
+  $("tTake").classList.toggle("on", owning);
+  $("tTake").textContent = owning ? "Release" : (teachBusy() ? `${teachRow.owner_name || "Someone"} is teaching` : "Take control");
+}
+sb.from("teach").select("*").eq("id", 1).single().then(({ data }) => { teachRow = data; renderTeach(); });
+setInterval(() => { if (owning) pushPose(); else renderTeach(); }, 5000);
+
+// ---------- leaderboard (your points) ----------
+async function refreshPoints() {
+  const me = ($("name").value.trim() || store.get("tg_name", "")).trim(); if (!me) { $("mypts").textContent = ""; return; }
+  const { data } = await sb.from("leaderboard").select("author,points").limit(50);
+  const i = (data || []).findIndex((r) => r.author === me);
+  $("mypts").innerHTML = i >= 0 ? `You: <b>${data[i].points} pts</b> · rank <b>#${i + 1}</b> of ${data.length} builders` : "Send a mission to get on the leaderboard";
+}
+setInterval(refreshPoints, 8000);
+
+sb.channel("phone2")
+  .on("postgres_changes", { event: "UPDATE", schema: "public", table: "teach" }, (p) => { teachRow = p.new; if (owning && p.new.owner !== voter) { owning = false; } renderTeach(); })
+  .on("postgres_changes", { event: "UPDATE", schema: "public", table: "missions" }, (p) => {
+    const m = p.new; if (!m || !mine.includes(m.id)) return;
+    if (m.status === "awaiting_approval") speak(m.summary || "Your plan passed the twin rehearsal.");
+    if (m.status === "done") speak("Done. Your mission ran on the real robot.");
+    if (m.status === "blocked") speak("The safety gate blocked it. The real robot never moved.");
+    refreshPoints();
+  })
+  .subscribe();
+load(); refreshPoints();
+</script>
+</body>
+</html>

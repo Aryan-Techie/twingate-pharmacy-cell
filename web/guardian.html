@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>GuardianHome</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+<style>
+  .app { max-width: 1500px; margin: 0 auto; padding: 14px 16px 24px; display: grid; gap: 14px; }
+  .top { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .top .brand { font-size: 22px; }
+  .motto { color: var(--muted); font-size: 14px; }
+  .sp { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn { padding: 9px 14px; border-radius: 999px; font-weight: 600; background: var(--panel-2); color: var(--text); border: 1px solid var(--line); }
+  .btn.on { background: var(--ok); color: #04140a; border-color: var(--ok); }
+  .grid { display: grid; grid-template-columns: 340px 1fr 340px; gap: 14px; }
+  @media (max-width: 1100px) { .grid { grid-template-columns: 1fr; } }
+  .pad { padding: 14px; }
+  .cam { position: relative; border-radius: 12px; overflow: hidden; background: #000; aspect-ratio: 4/3; border: 1px solid var(--line); }
+  .cam img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .cam .none { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); font-size: 13px; text-align: center; padding: 16px; }
+  .cam .tag { position: absolute; left: 8px; top: 8px; font-family: var(--mono); font-size: 11px; background: rgba(0,0,0,.7); padding: 3px 8px; border-radius: 6px; }
+  .verdict { margin-top: 10px; font-size: 14px; } .verdict b { display: block; font-size: 15px; margin-bottom: 2px; }
+  .inc { padding: 22px; min-height: 360px; display: flex; flex-direction: column; gap: 12px; transition: background .3s; }
+  .inc.clear { background: color-mix(in srgb, var(--ok) 7%, var(--panel)); }
+  .inc.alarm { background: color-mix(in srgb, var(--bad) 18%, var(--panel)); border-color: var(--bad); }
+  .inc.alarm .state { animation: pulse 1s infinite; }
+  .inc.calm { background: color-mix(in srgb, var(--sim) 10%, var(--panel)); }
+  .state { font-size: 40px; font-weight: 700; letter-spacing: -0.03em; line-height: 1.05; }
+  .inc.clear .state { color: var(--ok); } .inc.alarm .state { color: #ff6b7d; } .inc.calm .state { color: var(--sim); }
+  .sub { color: var(--muted); font-size: 16px; line-height: 1.45; }
+  .row { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+  .ring { width: 96px; height: 96px; flex: none; }
+  .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .ok { padding: 18px; border-radius: 14px; font-size: 19px; font-weight: 700; background: var(--ok); color: #04140a; }
+  .help { padding: 18px; border-radius: 14px; font-size: 19px; font-weight: 700; background: var(--bad); color: #fff; }
+  .sim { padding: 14px 18px; border-radius: 12px; font-weight: 700; background: var(--panel-2); color: var(--text); border: 1px dashed var(--line); }
+  .snap { max-width: 240px; border-radius: 10px; border: 1px solid var(--line); }
+  .tl { max-height: 380px; overflow: auto; font-size: 13.5px; }
+  .ev { display: grid; grid-template-columns: 64px 1fr; gap: 10px; padding: 5px 0; }
+  .ev .t { font-family: var(--mono); font-size: 11px; color: var(--muted); padding-top: 2px; }
+  .ev.safety .m { color: #ffb3bd; } .ev.tool .m { color: var(--sim); font-family: var(--mono); font-size: 12.5px; } .ev.sim .m { color: var(--sim); }
+  .fleet { display: grid; gap: 10px; }
+  .bot { display: grid; grid-template-columns: 12px 1fr; gap: 10px; align-items: start; padding: 10px 12px; border-radius: 10px; background: var(--panel-2); }
+  .bot .d { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); margin-top: 5px; }
+  .bot.go .d { background: var(--live); box-shadow: 0 0 10px var(--live); } .bot.there .d { background: var(--ok); }
+  .bot b { display: block; } .bot span { color: var(--muted); font-size: 12.5px; }
+  .twin { display: block; text-align: center; padding: 12px; border-radius: 10px; background: var(--sim); color: #041016; font-weight: 700; text-decoration: none; margin-top: 12px; }
+  .gates { margin-top: 12px; font-size: 13px; color: var(--muted); line-height: 1.5; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="brand"><span class="logo"></span>GuardianHome</div>
+    <div class="motto">Real camera sees a fall · robot team responds in the Cyberwave digital twin · caregiver decides</div>
+    <div class="sp">
+      <button class="btn" id="mon">Monitoring off</button>
+      <button class="btn" id="voice">🔈 voice off</button>
+      <span class="pill mono" id="rt">Realtime – ms</span>
+    </div>
+  </div>
+  <div class="grid">
+    <section class="panel pad">
+      <div class="label" style="margin-bottom:8px">Room camera (live)</div>
+      <div class="cam"><img id="cam" alt="room camera" /><div class="none" id="camNone">Open eyes.html on a phone pointed at the room</div><span class="tag" id="camTag">AI vision</span></div>
+      <div class="verdict" id="verdict"><b>Waiting for first frame</b><span class="muted">Claude checks every frame for a person on the floor.</span></div>
+      <div class="gates"><b style="color:var(--text)">Safety rules the twin enforces</b><br>· robots stay ≥ 0.5 m from the person<br>· routes go through doors, never through walls<br>· everything stays inside the apartment<br>· E-STOP freezes every robot</div>
+    </section>
+
+    <section class="panel inc clear" id="inc">
+      <div class="label" id="incLabel">Status</div>
+      <div class="state" id="state">All clear</div>
+      <div class="sub" id="sub">Monitoring the apartment. If the resident falls, the robot team responds and the caregiver is asked within seconds.</div>
+      <div class="row" id="ringRow" style="display:none">
+        <svg class="ring" viewBox="0 0 80 80"><circle cx="40" cy="40" r="34" fill="none" stroke="var(--line)" stroke-width="8"/><circle id="arc" cx="40" cy="40" r="34" fill="none" stroke="#ff6b7d" stroke-width="8" stroke-linecap="round" transform="rotate(-90 40 40)" stroke-dasharray="214 214"/><text id="secs" x="40" y="47" text-anchor="middle" fill="var(--text)" font-family="JetBrains Mono" font-weight="600" font-size="20">25</text></svg>
+        <div class="sub">Seconds until emergency services are called.<br>Say <b>"I'm okay"</b> or tap a button.</div>
+      </div>
+      <img class="snap" id="snap" style="display:none" alt="evidence frame" />
+      <div class="actions" id="actions" style="display:none"><button class="ok" id="okBtn">✓ I'm OK</button><button class="help" id="helpBtn">Send help</button></div>
+      <div class="row"><button class="sim" id="simBtn">Simulate a fall</button><button class="sim" id="sayBtn">🎙 Say "I'm okay"</button></div>
+      <div class="label" style="margin-top:6px">Response timeline</div>
+      <div class="tl" id="tl"><div class="muted">No incident yet.</div></div>
+    </section>
+
+    <section class="panel pad">
+      <div class="label" style="margin-bottom:10px">Robot team (digital twin)</div>
+      <div class="fleet">
+        <div class="bot" id="bRover"><span class="d"></span><div><b>Response Rover · TurtleBot3</b><span id="sRover">Docked · carries phone + medkit</span></div></div>
+        <div class="bot" id="bDog"><span class="d"></span><div><b>Escort Quadruped · Go2</b><span id="sDog">Standby · lights the way for paramedics</span></div></div>
+        <div class="bot" id="bArm"><span class="d"></span><div><b>Medication Arm · SO-101</b><span id="sArm">Standby · prepares the pill organizer</span></div></div>
+        <div class="bot" id="bRes"><span class="d"></span><div><b>Resident · Unitree G1 avatar</b><span id="sRes">Standing</span></div></div>
+      </div>
+      <a class="twin" id="twinLink" target="_blank" rel="noopener">Open the live 3D twin in Cyberwave ↗</a>
+      <div class="gates">Built with Cyberwave (digital twin, catalog robots, alerts) · Supabase (Postgres, RLS, Realtime, Storage) · Claude (vision + planning).</div>
+    </section>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<script>
+const sb = supabase.createClient(TWINGATE.SUPABASE_URL, TWINGATE.SUPABASE_ANON_KEY);
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+$("twinLink").href = TWINGATE.HOME_VIEWER || "https://cyberwave.com/aryans-workspace-3/envs/guardianhome-fall-response-digital-twin";
+let inc = null, evs = [], voice = false, watch = null;
+function say(t) { if (!voice || !window.speechSynthesis) return; speechSynthesis.cancel(); speechSynthesis.speak(new SpeechSynthesisUtterance(t)); }
+$("voice").onclick = () => { voice = !voice; $("voice").classList.toggle("on", voice); $("voice").textContent = voice ? "🔊 voice on" : "🔈 voice off"; say("Guardian Home online."); };
+
+// camera + vision verdict
+const camUrl = `${TWINGATE.SUPABASE_URL}/storage/v1/object/public/frames/eyes/latest.jpg`;
+$("cam").onload = () => { $("camNone").style.display = "none"; };
+$("cam").onerror = () => { $("camNone").style.display = "grid"; };
+setInterval(() => { $("cam").src = `${camUrl}?t=${Date.now()}`; }, 2000);
+function showReport(r) { if (!r) return; $("verdict").innerHTML = `<b style="color:${r.alert ? "#ff6b7d" : "var(--ok)"}">${r.alert ? "⚠ " : "✓ "}${esc(r.title)}</b><span class="muted">${esc(r.detail)}</span>`; }
+sb.from("reports").select("*").order("id", { ascending: false }).limit(1).then(({ data }) => showReport((data || [])[0]));
+
+// monitoring toggle (vision rule lives in the watch row)
+function renderMon() { if (!watch) return; $("mon").classList.toggle("on", watch.enabled); $("mon").textContent = watch.enabled ? "● Monitoring on" : "Monitoring off"; }
+sb.from("watch").select("*").eq("id", 1).single().then(({ data }) => { watch = data; renderMon(); });
+$("mon").onclick = async () => { if (!watch) return; await sb.from("watch").update({ enabled: !watch.enabled, updated_at: new Date().toISOString() }).eq("id", 1); };
+
+// incident card
+const ACTIVE = ["detected", "responding", "awaiting_ack"];
+function setBot(id, cls, txt) { $(id).className = `bot ${cls}`; }
+function renderInc() {
+  const card = $("inc"), st = inc?.status;
+  card.className = "panel inc " + (!inc || st === "resolved" ? "clear" : ACTIVE.includes(st) || st === "escalated" || st === "help_requested" ? "alarm" : "calm");
+  $("actions").style.display = ACTIVE.includes(st) ? "grid" : "none";
+  $("ringRow").style.display = st === "awaiting_ack" ? "flex" : "none";
+  $("snap").style.display = inc?.image_url && st !== "resolved" ? "block" : "none";
+  if (inc?.image_url) $("snap").src = inc.image_url;
+  $("incLabel").textContent = inc ? `Incident #${inc.id} · ${inc.source === "camera" ? "detected by camera AI" : "simulated"}` : "Status";
+  const map = {
+    detected: ["FALL DETECTED", inc?.detail || "Person on the floor."],
+    responding: ["FALL DETECTED · robots responding", "The robot team is rehearsing its routes in the digital twin and moving in."],
+    awaiting_ack: ["Help is beside the resident", "Rover with phone and medkit is 0.6 m away. Go2 is lighting the door. Pills are ready."],
+    resolved: ["Resident is OK", `Confirmed by ${inc?.resolved_by || "resident"}. Robots returning to their docks.`],
+    help_requested: ["Ambulance dispatched", `Requested by ${inc?.resolved_by || "caregiver"} (simulated). Rover stays with the resident.`],
+    escalated: ["Emergency services called", "Nobody answered in time (simulated call). Caregiver paged, door unlocked for paramedics."],
+  };
+  const [a, b] = inc ? map[st] || [st, ""] : ["All clear", "Monitoring the apartment. If the resident falls, the robot team responds and the caregiver is asked within seconds."];
+  $("state").textContent = a; $("sub").textContent = b;
+  const rover = evs.some((e) => /Rover.*arrived/.test(e.message)), dog = evs.some((e) => /Go2.*arrived/.test(e.message));
+  const moving = st === "responding";
+  $("bRover").className = `bot ${rover && st !== "resolved" ? "there" : moving ? "go" : ""}`; $("sRover").textContent = rover && st !== "resolved" ? "Beside the resident (0.64 m) · phone + medkit" : moving ? "En route via bedroom door" : "Docked · carries phone + medkit";
+  $("bDog").className = `bot ${dog && st !== "resolved" ? "there" : moving ? "go" : ""}`; $("sDog").textContent = dog && st !== "resolved" ? "At bedroom door · lighting the way" : moving ? "Moving to bedroom door" : "Standby · lights the way for paramedics";
+  const arm = evs.some((e) => /prepare_pills/.test(e.message));
+  $("bArm").className = `bot ${arm && st !== "resolved" ? "there" : ""}`; $("sArm").textContent = arm && st !== "resolved" ? "Pill organizer ready" : "Standby · prepares the pill organizer";
+  const down = inc && st !== "resolved";
+  $("bRes").className = `bot ${down ? "go" : "there"}`; $("sRes").textContent = down ? "On the floor (avatar fell in the twin)" : "Standing";
+}
+function renderTl() {
+  const list = evs.filter((e) => e.stage !== "pose");
+  $("tl").innerHTML = list.length ? list.map((e) => `<div class="ev ${e.stage}"><span class="t">${new Date(e.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}</span><span class="m">${esc(e.message)}</span></div>`).join("") : `<div class="muted">No incident yet.</div>`;
+  $("tl").scrollTop = $("tl").scrollHeight;
+}
+setInterval(() => {
+  if (inc?.status !== "awaiting_ack" || !inc.escalate_at) return;
+  const left = Math.max(0, (new Date(inc.escalate_at) - Date.now()) / 1000);
+  $("secs").textContent = Math.ceil(left); $("arc").setAttribute("stroke-dasharray", `${214 * left / 25} 214`);
+}, 200);
+async function loadInc() {
+  const { data } = await sb.from("incidents").select("*").order("id", { ascending: false }).limit(1);
+  inc = (data || [])[0] || null; evs = [];
+  if (inc?.mission_id) { const r = await sb.from("events").select("*").eq("mission_id", inc.mission_id).order("id").limit(300); evs = r.data || []; }
+  renderInc(); renderTl();
+}
+async function answer(status, by) {
+  if (!inc || !ACTIVE.includes(inc.status)) return;
+  const { error } = await sb.from("incidents").update({ status, resolved_by: by }).eq("id", inc.id);
+  if (error) alert(error.message);
+}
+$("okBtn").onclick = () => answer("resolved", "resident (tap)");
+$("helpBtn").onclick = () => answer("help_requested", "caregiver");
+$("simBtn").onclick = async () => {
+  if (inc && ACTIVE.includes(inc.status)) return;
+  const { error } = await sb.from("incidents").insert({ source: "simulated", title: "Person lying on bedroom floor", detail: "Simulated fall: resident on the floor beside the bed, not moving." });
+  if (error) alert(error.message);
+};
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+$("sayBtn").onclick = () => {
+  if (!SR) return alert("Voice not supported in this browser");
+  const rec = new SR(); rec.lang = "en-IN";
+  $("sayBtn").textContent = "🎙 listening…";
+  rec.onresult = (e) => { const t = e.results[0][0].transcript.toLowerCase(); if (/ok|okay|fine|alright|theek|thik/.test(t)) answer("resolved", `resident (voice: "${t}")`); else if (/help|ambulance|bachao/.test(t)) answer("help_requested", `resident (voice: "${t}")`); };
+  rec.onend = () => { $("sayBtn").textContent = '🎙 Say "I\'m okay"'; };
+  rec.start();
+};
+sb.channel("guardian")
+  .on("postgres_changes", { event: "*", schema: "public", table: "incidents" }, async (p) => {
+    const prev = inc?.status; const isNew = !inc || p.new.id !== inc.id;
+    inc = p.new; if (isNew) evs = [];
+    if (isNew || prev !== inc.status) {
+      if (inc.status === "responding") say("Fall detected. Help is on the way. Are you okay?");
+      if (inc.status === "awaiting_ack") say("The rover is next to you. Say I'm okay, or I will call for help.");
+      if (inc.status === "escalated") say("No answer. Calling emergency services.");
+      if (inc.status === "resolved") say("Glad you are okay. Robots returning.");
+      if (inc.status === "help_requested") say("Ambulance on the way. Stay where you are.");
+    }
+    renderInc(); renderTl();
+  })
+  .on("postgres_changes", { event: "INSERT", schema: "public", table: "events" }, (p) => { if (inc && p.new.mission_id === inc.mission_id && p.new.mission_id) { evs.push(p.new); renderInc(); renderTl(); } })
+  .on("postgres_changes", { event: "INSERT", schema: "public", table: "reports" }, (p) => showReport(p.new))
+  .on("postgres_changes", { event: "*", schema: "public", table: "watch" }, (p) => { watch = p.new; renderMon(); })
+  .subscribe();
+const ping = sb.channel("gping", { config: { broadcast: { self: true } } });
+ping.on("broadcast", { event: "p" }, ({ payload }) => { $("rt").textContent = `Realtime ${Math.round(performance.now() - payload.t)} ms`; })
+  .subscribe((s) => { if (s === "SUBSCRIBED") setInterval(() => ping.send({ type: "broadcast", event: "p", payload: { t: performance.now() } }), 3000); });
+loadInc();
+</script>
+</body>
+</html>
