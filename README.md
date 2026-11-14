@@ -12,7 +12,6 @@ An AI agent moves robots only after a Cyberwave digital twin has rehearsed the m
 - **Mission control:** https://aryan-techie.github.io/twingate/control.html
 - **Phone app (send commands, vote, teach by hand):** https://aryan-techie.github.io/twingate/
 
-Built by **Ritu** at the Supabase x Cyberwave Builders Meetup, Delhi NCR, 14 Nov 2026.
 
 ## The problem
 
